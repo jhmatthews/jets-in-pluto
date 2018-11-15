@@ -1,7 +1,7 @@
 #define  PHYSICS                        RHD
-#define  DIMENSIONS                     3
-#define  COMPONENTS                     3
-#define  GEOMETRY                       CARTESIAN
+#define  DIMENSIONS                     2
+#define  COMPONENTS                     2
+#define  GEOMETRY                       CYLINDRICAL
 #define  BODY_FORCE                     VECTOR
 #define  FORCED_TURB                    NO
 #define  COOLING                        NO
@@ -9,7 +9,7 @@
 #define  TIME_STEPPING                  RK2
 #define  DIMENSIONAL_SPLITTING          NO
 #define  NTRACER                        1
-#define  USER_DEF_PARAMETERS            8
+#define  USER_DEF_PARAMETERS            7
 
 /* -- physics dependent declarations -- */
 
@@ -25,7 +25,6 @@
 #define  CS_A                           4
 #define  CORE_RADIUS                    5
 #define  BETA                           6
-#define  JET_LOCATION                   7
 
 /* [Beg] user-defined constants (do not change this line) */
 

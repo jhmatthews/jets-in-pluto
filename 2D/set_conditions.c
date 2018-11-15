@@ -58,10 +58,14 @@ double GetAmbientDensity(double x1, double x2, double x3, double beta, double r_
       print ("!! Error: beta must be >0,<2.\n");
       exit(0);
   }
+  #if GEOMETRY == CARTESIAN
+    r = sqrt(x1*x1 + x2*x2 + x3*x3); /* spherical radius in cart. coords */
+  #elif GEOMETRY == CYLINDRICAL
+    r = sqrt(x1*x1 + x2*x2); /* spherical radius in cyl. coords */
+  #elif GEOMETRY == SPHERICAL
+    r = x1; /* spherical radius in sph. coords */
+  #endif
 
-  double dx1 = (x1 - g_inputParam[JET_LOCATION]); 
-  double dx3 = (x3 - g_inputParam[JET_LOCATION]); 
-  r = sqrt(dx1*dx1 + x2*x2 + dx3*dx3);
   exponent = -3.0 * beta / 2.0;
   rho = 1.0 + pow(r/r_c, 2.0);
   rho = pow(rho, exponent);

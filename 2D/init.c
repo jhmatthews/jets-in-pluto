@@ -128,13 +128,10 @@ void UserDefBoundary (const Data *d, RBox *box, int side, Grid *grid)
  *********************************************************************** */
 {
   int   i, j, k, nv;
-  double cs, Tj, vjet[NVAR], vout[NVAR], w_jet, r_jet, r;
-  double test, eta;
-  double dx1_sq, dx3_sq;
+  double vjet[NVAR], vout[NVAR], w_jet, r, eta;
 
   /* basic jet parameters from input file */
   w_jet = g_inputParam[JET_WIDTH];
-  r_jet = g_inputParam[JET_LOCATION];
   eta = g_inputParam[ETA];
 
   //CheckGrid(grid);
@@ -143,26 +140,23 @@ void UserDefBoundary (const Data *d, RBox *box, int side, Grid *grid)
   double *x3 = grid->x[KDIR];
 
   if (side == X2_BEG){
-
     GetJetParams(vjet, eta);
-    
     X2_BEG_LOOP(k,j,i){
       VAR_LOOP(nv) vout[nv] = d->Vc[nv][k][2*JBEG-j-1][i];
       vout[VX2] *= -1.0;
 
-      dx1_sq = (x1[i]-r_jet) * (x1[i]-r_jet);
-      dx3_sq = (x3[k]-r_jet) * (x3[k]-r_jet);
-
-      r = sqrt (dx1_sq + dx3_sq);
-
+      r = x1[i];
       for (nv = 0; nv < NVAR; nv++)
         d->Vc[nv][k][j][i] = vout[nv] + (vjet[nv] - vout[nv])*Profile(r,w_jet,nv);
 
+      /* assign a passive scalar */
       if (r <= w_jet)
         d->Vc[TRC][k][j][i] = 1.0;
-      }
+    }
   }
 }
+
+
 
 #if (BODY_FORCE & VECTOR)
 /* ********************************************************************* */
@@ -177,20 +171,14 @@ void BodyForceVector(double *v, double *g, double x1, double x2, double x3)
  *********************************************************************** */
 {
   double gs, rs;
-  double dx1_sq, dx3_sq, r_jet;
-
-  r_jet = g_inputParam[JET_LOCATION];
-
-  dx1_sq = (x1-r_jet) * (x1-r_jet);
-  dx3_sq = (x3-r_jet) * (x3-r_jet);
   #if GEOMETRY == CARTESIAN
-    rs = sqrt(dx1_sq + x2*x2 + dx3_sq); /* spherical radius in cart. coords */
+    rs = sqrt(x1*x1 + x2*x2 + x3*x3); /* spherical radius in cart. coords */
   #elif GEOMETRY == CYLINDRICAL
-    rs = sqrt(x1*x1 + x2*x2);           /* spherical radius in cyl. coords */ 
+    rs = sqrt(x1*x1 + x2*x2); /* spherical radius in cyl. coords */
   #elif GEOMETRY == SPHERICAL
-    rs = x1;                            /* spherical radius in sph. coords */
-  #endif 
-  
+    rs = x1; /* spherical radius in sph. coords */
+  #endif
+
   double beta = g_inputParam[BETA];
   double rho0 = 1.0;
   double rcore = g_inputParam[CORE_RADIUS];
