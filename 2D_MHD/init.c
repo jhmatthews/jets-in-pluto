@@ -81,7 +81,7 @@ void Init (double *v, double x1, double x2, double x3)
   /* set ambient pressure such that sound speed is unit velocity */
   v[PRS] = sound_speed * sound_speed / (5./3.) * v[RHO];
 
-  v[BX3] = sqrt(0.1*v[PRS]*4.0*3.141592);
+  v[BX1] = sqrt(0.1*v[PRS]*4.0*3.141592);
 
   /* set a pressure floor - not clear if this is needed */
   g_smallPressure = v[PRS] / 500.0;
@@ -131,30 +131,52 @@ void UserDefBoundary (const Data *d, RBox *box, int side, Grid *grid)
 {
   int   i, j, k, nv;
   double vjet[NVAR], vout[NVAR], w_jet, r, eta;
+  double M_a, M_sonic, Bm;
 
   /* basic jet parameters from input file */
   w_jet = g_inputParam[JET_WIDTH];
   eta = g_inputParam[ETA];
+  M_a = g_inputParam[JET_ALFVEN_MACH];
+  M_sonic = g_inputParam[JET_SONIC_MACH];
+
+  
+
 
   //CheckGrid(grid);
   double *x1 = grid->x[IDIR];
   double *x2 = grid->x[JDIR];
   double *x3 = grid->x[KDIR];
+  double rm = 0.5;    // magnetisation radius 
 
-  if (side == X2_BEG){
+  if (side == X2_BEG)
+  {
     GetJetParams(vjet, eta);
-    X2_BEG_LOOP(k,j,i){
+    X2_BEG_LOOP(k,j,i)
+    {
       VAR_LOOP(nv) vout[nv] = d->Vc[nv][k][2*JBEG-j-1][i];
       vout[VX2] *= -1.0;
-      vjet[BX2] = sqrt(0.1*vjet[RHO]*vjet[VX2]*vjet[VX2]*4.0*3.141592);
 
       r = x1[i];
       for (nv = 0; nv < NVAR; nv++)
-        d->Vc[nv][k][j][i] = vout[nv] + (vjet[nv] - vout[nv])*Profile(r,w_jet,nv);
+      {
+        if (nv != BX3)
+          d->Vc[nv][k][j][i] = vout[nv] + (vjet[nv] - vout[nv])*Profile(r,w_jet,nv);
+      }
+
+      Bm = M_a * sqrt(4.0 * 3.14 * d->Vc[RHO][k][j][i]) * vjet[VX2];
       
-      /* assign a passive scalar */
-      if (r <= w_jet)
+      /* assign a passive scalar and the magnetic field strength*/
+      if (r <= w_jet * rm)
+      {
         d->Vc[TRC][k][j][i] = 1.0;
+        d->Vc[BX3][k][j][i] = Bm * r / rm / w_jet;
+      }
+      else if ((r > w_jet * rm) && (r <= w_jet))
+      {
+        d->Vc[TRC][k][j][i] = 1.0;
+        d->Vc[BX3][k][j][i] = Bm * rm * w_jet / r;
+      }
+
     }
   }
 }

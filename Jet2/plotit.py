@@ -4,10 +4,10 @@ from numpy import *
 from matplotlib.pyplot import *
 from pluto_jm import pyPLUTO as pp
 
-wdir = 'out_f1/'
+wdir = 'out_pluto/'
 nlinf = pp.nlast_info(w_dir=wdir, datatype="float")
 
-D = pp.pload(116,w_dir=wdir, datatype="float") # Loading the data into a pload object D.
+D = pp.pload(60,w_dir=wdir, datatype="float") # Loading the data into a pload object D.
 #D = pp.pload(100,w_dir=wdir, datatype="float") # Loading the data into a pload object D.
 I = pp.Image()
 
@@ -27,7 +27,7 @@ I.pldisplay(D, B,x1=D.x1,x2=D.x2,label1='x',label2='y',
 
 # Code to plot field lines. Requires 2 arrays xarr and yarr as
 # the starting point of integration i.e. x and y co-ordinate of the field point.
-I.myfieldlines(D,linspace(D.x1.min(),D.x1.max(),20),linspace(D.x2.min(),D.x2.min(),20),
+I.myfieldlines(D,linspace(D.x1.min(),D.x1.max(),50),linspace(D.x2.max(),D.x2.max(),50),
                colors='w',ls='-',lw=1.5)
 
 savefig('jet_final.png') # Only to be saved as either .png or .jpg
