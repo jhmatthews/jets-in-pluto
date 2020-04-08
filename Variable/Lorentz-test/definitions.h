@@ -15,13 +15,11 @@
 
 #define  EOS                            TAUB
 #define  ENTROPY_SWITCH                 NO
-#define  DIVB_CONTROL                   DIV_CLEANING
-#define  RESISTIVITY                    NO
 
 /* -- user-defined parameters (labels) -- */
 
 #define  ETA                            0
-#define  V_OVER_C                       1
+#define  GMM                     		1
 #define  JET_WIDTH                      2
 #define  JET_MACH_NUMBER                3
 #define  CS_A                           4
@@ -31,16 +29,14 @@
 /* [Beg] user-defined constants (do not change this line) */
 
 #define  WARNING_MESSAGES               NO
-#define  INTERNAL_BOUNDARY              NO
-#define  INITIAL_SMOOTHING              NO
+#define  INTERNAL_BOUNDARY              YES
 #define  SHOCK_FLATTENING               MULTID
-#define  LIMITER                        MINMOD_LIM
-// #define  CT_EMF_AVERAGE                 UCT_CONTACT
-#define  UNIT_DENSITY                   (6e-23)
-#define  UNIT_LENGTH                    (CONST_pc)
+#define  CHAR_LIMITING                  YES
+#define  LIMITER                        MC_LIM
+#define  UNIT_DENSITY                   (6e-27)
+#define  UNIT_LENGTH                    (CONST_pc*1e3)
 #define  UNIT_VELOCITY                  (CONST_c)
+#define  UNIT_TIME                      (UNIT_LENGTH/UNIT_VELOCITY)
 #define  EPS_PSHOCK_FLATTEN             10
-#define  PARTICLES_TYPE                 LAGRANGIAN
-#define  PARTICLES_LP_SPECTRA           NO
 
 /* [End] user-defined constants (do not change this line) */

@@ -1,0 +1,11 @@
+*.DS_Store
+*.o
+*.mp4 
+*.png
+*.pyc
+*/makefile
+*/pluto
+*.out
+*.flt
+*.dbl
+*.log

@@ -54,12 +54,10 @@ void Init (double *v, double x1, double x2, double x3)
 {
   /* get some input parameters */
   double rho0 = 1.0;
-  int nv;
   double beta = g_inputParam[BETA];
   double r_c = g_inputParam[CORE_RADIUS];
   double sound_speed = g_inputParam[CS_A];
-  double rnd, drho, dx1, dx2, rsq;
-  double vjet[NVAR], eta;
+  double rnd, drho;
   
   double scrh;
 
@@ -67,30 +65,24 @@ void Init (double *v, double x1, double x2, double x3)
   #if EOS == IDEAL
    g_gamma = 5.0/3.0;
   #endif
+  
+  v[RHO] = GetAmbientDensity(x1, x2, x3, beta, r_c, rho0);
 
-  dx1 = x1;
-  dx2 = x2 - r_c;
-  rsq = g_inputParam[JET_WIDTH] * g_inputParam[JET_WIDTH];
-  eta = g_inputParam[ETA];
+  /* apply small density perturbation */
+  rnd = (double)(rand()) / ((double)RAND_MAX + 1.0);
+  drho = (-1 + 2.0 * rnd) * 1e-10 * v[RHO]; 
+  v[RHO] += drho;
 
-  if ( ((dx1 * dx1) + (dx2 * dx2)) > rsq) {
-    v[RHO] = rho0;
-    v[PRS] = sound_speed * sound_speed / (5./3.) * v[RHO];
-    g_smallPressure = v[PRS] / 500.0;
-    
-    /* initially at rest */
-    v[VX1] = 0.0;
-    v[VX2] = 0.0;
-    v[VX3] = 0.0;
-    // v[BX1] = sqrt(0.1 * v[PRS] * 8.0 * CONST_PI); 
-  }
-  else {
-    GetJetParams(vjet, eta);
-    for (nv = 0; nv < NVAR; nv++)
-      v[nv] = vjet[nv];
-    v[TRC] = 1.0;
-    // v[BX1] = 0.0; 
-  }
+  /* initially at rest */
+  v[VX1] = 0.0;
+  v[VX2] = 0.0;
+  v[VX3] = 0.0;
+
+  /* set ambient pressure such that sound speed is unit velocity */
+  v[PRS] = sound_speed * sound_speed / (5./3.) * v[RHO];
+
+  /* set a pressure floor - not clear if this is needed */
+  g_smallPressure = v[PRS] / 500.0;
 }
 
 /* ********************************************************************* */
@@ -147,21 +139,26 @@ void UserDefBoundary (const Data *d, RBox *box, int side, Grid *grid)
   double *x2 = grid->x[JDIR];
   double *x3 = grid->x[KDIR];
 
-  // if (side == X2_BEG){
-  //   GetJetParams(vjet, eta);
-  //   X2_BEG_LOOP(k,j,i){
-  //     VAR_LOOP(nv) vout[nv] = d->Vc[nv][k][2*JBEG-j-1][i];
-  //     vout[VX2] *= -1.0;
+  if (side == X2_BEG){
+    GetJetParams(vjet, eta);
+    X2_BEG_LOOP(k,j,i){
+      VAR_LOOP(nv) vout[nv] = d->Vc[nv][k][2*JBEG-j-1][i];
+      vout[VX2] *= -1.0;
 
-  //     r = x1[i];
-  //     for (nv = 0; nv < NVAR; nv++)
-  //       d->Vc[nv][k][j][i] = vout[nv] + (vjet[nv] - vout[nv])*Profile(r,w_jet,nv);
+      r = x1[i];
+      for (nv = 0; nv < NVAR; nv++)
+      {
+        // if (r <= w_jet)
+        // d->Vc[nv][k][j][i] = vout[nv] + (vjet[nv] - vout[nv])*Profile(r,w_jet,nv);
+        if (r <= w_jet) d->Vc[nv][k][j][i] = vjet[nv];
+        else d->Vc[nv][k][j][i] = vout[nv];
+      }
 
-  //     /* assign a passive scalar */
-  //     if (r <= w_jet)
-  //       d->Vc[TRC][k][j][i] = 1.0;
-  //   }
-  // }
+      /* assign a passive scalar */
+      if (r <= w_jet)
+        d->Vc[TRC][k][j][i] = 1.0;
+    }
+  }
 }
 
 

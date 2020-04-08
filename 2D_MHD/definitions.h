@@ -15,7 +15,7 @@
 
 #define  EOS                            TAUB
 #define  ENTROPY_SWITCH                 NO
-#define  DIVB_CONTROL                   CONSTRAINED_TRANSPORT
+#define  DIVB_CONTROL                   DIVERGENCE_CLEANING
 #define  RESISTIVITY                    NO
 
 /* -- user-defined parameters (labels) -- */
@@ -23,7 +23,7 @@
 #define  ETA                            0
 #define  V_OVER_C                       1
 #define  JET_WIDTH                      2
-#define  JET_SONIC_MACH                	3
+#define  JET_SONIC_MACH                 3
 #define  JET_ALFVEN_MACH                4
 #define  CS_A                           5
 #define  CORE_RADIUS                    6
