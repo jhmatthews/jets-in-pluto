@@ -15,8 +15,6 @@
 
 #define  EOS                            TAUB
 #define  ENTROPY_SWITCH                 NO
-#define  DIVB_CONTROL                   DIV_CLEANING
-#define  RESISTIVITY                    NO
 
 /* -- user-defined parameters (labels) -- */
 
@@ -35,12 +33,11 @@
 #define  INITIAL_SMOOTHING              NO
 #define  SHOCK_FLATTENING               MULTID
 #define  LIMITER                        MINMOD_LIM
-// #define  CT_EMF_AVERAGE                 UCT_CONTACT
 #define  UNIT_DENSITY                   (6e-23)
 #define  UNIT_LENGTH                    (CONST_pc)
 #define  UNIT_VELOCITY                  (CONST_c)
 #define  EPS_PSHOCK_FLATTEN             10
 #define  PARTICLES_TYPE                 LAGRANGIAN
-#define  PARTICLES_LP_SPECTRA           NO
+#define  PARTICLES_LP_SPECTRA           YES
 
 /* [End] user-defined constants (do not change this line) */

@@ -26,10 +26,10 @@ def plot_blob(D, variable, P, PVmag, cmap, my_title, subplot_id, vminmax, partic
 		plt.scatter(P.x1, P.x2, s=10, c=PVmag, cmap=plt.get_cmap('hot'), vmin=0, vmax=0.5) 
 		plt.scatter(-P.x1, P.x2, s=10, c=PVmag, cmap=plt.get_cmap('hot'), vmin=0, vmax=0.5)  
 	plt.xlim(-0.5,0.5)
-	plt.ylim(0,1)
+	plt.ylim(0,2)
 
 def make_4_plot(D, lorentz, cmaps, P, PVmag, nn, particles=True):
-	plt.figure(figsize=(7.5,6))
+	plt.figure(figsize=(7.5,10))
 	plot_blob(D, lorentz, P, PVmag, cmaps[3], "Bulk Lorentz", 221, (1,3), particles=particles)
 	plot_blob(D, D.tr1.T, P, PVmag, cmaps[1], "Blob Tracer", 222, (0,1), particles=particles)
 	plot_blob(D, D.rho.T, P, PVmag, cmaps[2], "Density", 223, (0,10), particles=particles)
@@ -39,14 +39,32 @@ def make_4_plot(D, lorentz, cmaps, P, PVmag, nn, particles=True):
 	else:
 		savename = 'blob_{:03d}.png'.format(int(nn))
 
-	plt.savefig(savename) # Only to be saved as either .png or .jpg
+	plt.savefig("blob_plots/"+savename) # Only to be saved as either .png or .jpg
+	plt.clf()
+	plt.close("all")
+
+
+def one_d_plot(D, lorentz, nn):
+	plt.figure(figsize=(7.5,5))
+	i = len(D.x1)//2
+
+	plt.plot(D.x2, lorentz.T[i,:])
+	plt.plot(D.x2, D.tr1[i,:])
+	plt.plot(D.x2, D.rho[i,:])
+	plt.plot(D.x2, D.prs[i,:])
+	plt.ylim(1e-8,100)
+
+	savename = 'profile_{:03d}.png'.format(int(nn))
+
+	plt.semilogy()
+	plt.savefig("1d_plots/"+savename) # Only to be saved as either .png or .jpg
 	plt.clf()
 	plt.close("all")
 
 
 
-plot_colors = True
-# plot_colors = False
+#plot_colors = True
+plot_colors = False
 
 for i, nn in enumerate(nrange):
 	#nn = nlinf["nlast"]
@@ -56,8 +74,10 @@ for i, nn in enumerate(nrange):
 	I = pp.Image()
 
 	# load particles 
-	P = pp.ploadparticles(int(nn), datatype='flt', w_dir=wdir) # Loading particle data.
-	PVmag = np.sqrt(P.vx1**2 + P.vx2**2 + P.vx3**2) # estimating the velocity magnitude
+	#P = pp.ploadparticles(int(nn), datatype='flt', w_dir=wdir) # Loading particle data.
+	#PVmag = np.sqrt(P.vx1**2 + P.vx2**2 + P.vx3**2) # estimating the velocity magnitude
+	P = None
+	PVmag = None
 
 	print ([p for p in dir(D)])
 
@@ -70,20 +90,27 @@ for i, nn in enumerate(nrange):
 	lorentz = 1.0 / np.sqrt(1.0 - D.vx2.T**2)
 
 	if plot_colors:
-		make_4_plot(D, lorentz, cmaps, P, PVmag, nn, particles=True)
-		make_4_plot(D, lorentz, cmaps, P, PVmag, nn, particles=False)
+	# 	make_4_plot(D, lorentz, cmaps, P, PVmag, nn, particles=True)
+	 	make_4_plot(D, lorentz, cmaps, P, PVmag, nn, particles=False)
 
-		weighted[i] = np.mean(lorentz[D.tr1.T>0.1])
+	one_d_plot(D, lorentz, nn)
+
+	weighted[i] = np.mean(lorentz[D.tr1.T>0.1])
 
 	select = (D.vx2 > 1e-15) 
 	Psum[i] = np.sum(D.prs[select])
 	select = (D.vx2 > 1e-15) * (D.tr1 > 0.01)
 	Psum_tr[i] = np.sum(D.prs[select])
 
-plt.plot(nrange * 3.264 * 0.01, Psum)
-plt.plot(nrange * 3.264 * 0.01, Psum_tr)
+
+delta_secs = 1.029e+08 * 0.05
+delta_days = delta_secs / 24.0 / 3600.0
+
+plt.plot(nrange * delta_days, Psum)
+plt.plot(nrange * delta_days, Psum_tr)
 plt.semilogy()
-plt.show()
+plt.xlim(0,2000)
+plt.savefig("lightcurve.png", dpi=200)
 # plot(nrange * 3.264 * 0.01, weighted)
 # show()
 # plt.clf()
